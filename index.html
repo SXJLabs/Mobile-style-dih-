@@ -1,45 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 Simulator</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: radial-gradient(circle at top, #06121f, #000);
+  color: white;
+}
+
+header {
+  text-align: center;
+  padding: 15px;
+  font-size: 22px;
+  color: #00ffcc;
+  border-bottom: 1px solid #222;
+}
+
+.container {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.panel {
+  flex: 1;
+  background: #111;
+  padding: 10px;
+  border-radius: 10px;
+  min-height: 80vh;
+  overflow-y: auto;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: #00ffcc;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.group {
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #1a1a1a;
+  border-radius: 8px;
+}
+
+.match {
+  padding: 5px;
+  border-bottom: 1px solid #333;
+}
+
+.highlight {
+  color: #00ffcc;
+}
+</style>
+</head>
+
+<body>
+
+<header>⚽ WORLD CUP 2026 AI TOURNAMENT SIMULATOR</header>
+
+<div class="container">
+
+  <div class="panel">
+    <h3>🎮 CONTROL PANEL</h3>
+    <button onclick="startTournament()">START TOURNAMENT</button>
+    <div id="status">Idle</div>
+  </div>
+
+  <div class="panel">
+    <h3>🌍 GROUP STAGE</h3>
+    <div id="groups"></div>
+  </div>
+
+  <div class="panel">
+    <h3>🏆 KNOCKOUT STAGE</h3>
+    <div id="knockout"></div>
+  </div>
+
+</div>
+
 <script>
 
-// WORLD CUP STYLE TEAM DATABASE (STRUCTURED LIKE REAL FIFA SYSTEM)
-const teams = [
-  // AFC
-  "Australia","Iran","Japan","Jordan","Qatar","Saudi Arabia","South Korea","Uzbekistan",
-
-  // CAF
-  "Algeria","Cape Verde","Egypt","Ghana","Morocco","Nigeria","Senegal","South Africa","Tunisia","DR Congo",
-
-  // CONCACAF
-  "Canada","Costa Rica","Cuba","Haiti","Mexico","Panama","United States",
-
-  // CONMEBOL
-  "Argentina","Bolivia","Brazil","Chile","Colombia","Ecuador","Paraguay","Peru","Uruguay","Venezuela",
-
-  // OFC
-  "New Zealand","New Caledonia",
-
-  // UEFA
-  "Austria","Belgium","Croatia","Czechia","Denmark","England","France","Germany",
-  "Hungary","Italy","Netherlands","Norway","Poland","Portugal","Scotland","Serbia",
-  "Spain","Sweden","Switzerland","Turkey","Ukraine","Wales","Bosnia and Herzegovina"
+// 48 TEAMS (REALISTIC WORLD CUP POOL)
+let teams = [
+"Argentina","Australia","Belgium","Brazil","Canada","Colombia","Croatia","Denmark",
+"Ecuador","Egypt","England","France","Germany","Ghana","Iran","Italy",
+"Japan","Mexico","Morocco","Netherlands","Nigeria","Norway","Poland","Portugal",
+"Qatar","Saudi Arabia","Senegal","Serbia","South Korea","Spain","Switzerland","USA",
+"Uruguay","Wales","Chile","Peru","Tunisia","Turkey","Ukraine","Algeria",
+"Costa Rica","Panama","Paraguay","Bolivia","New Zealand","Hungary","Czechia","South Africa"
 ];
 
-// SORT ALPHABETICALLY (A → Z like you asked)
-teams.sort();
+// SHUFFLE FUNCTION
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
+}
 
-// FILL DROPDOWNS
-let teamA = document.getElementById("teamA");
-let teamB = document.getElementById("teamB");
+// CREATE GROUPS
+function createGroups(){
+  let shuffled = shuffle([...teams]);
+  let groups = [];
 
-teams.forEach(t => {
-  let opt1 = document.createElement("option");
-  opt1.text = t;
-  opt1.value = t;
-  teamA.appendChild(opt1);
+  for(let i=0;i<12;i++){
+    groups.push(shuffled.slice(i*4, i*4+4));
+  }
 
-  let opt2 = document.createElement("option");
-  opt2.text = t;
-  opt2.value = t;
-  teamB.appendChild(opt2);
-});
+  return groups;
+}
+
+// SIMULATE MATCH
+function match(a,b){
+  let sa = Math.floor(Math.random()*5);
+  let sb = Math.floor(Math.random()*5);
+
+  if(sa === sb){
+    return Math.random() > 0.5 ? a : b;
+  }
+
+  return sa > sb ? a : b;
+}
+
+// START TOURNAMENT
+function startTournament(){
+
+  document.getElementById("status").innerHTML = "Generating Groups...";
+
+  let groups = createGroups();
+
+  let gDiv = document.getElementById("groups");
+  gDiv.innerHTML = "";
+
+  let qualified = [];
+
+  groups.forEach((g,i)=>{
+    let div = document.createElement("div");
+    div.className = "group";
+
+    div.innerHTML = `<b>Group ${i+1}</b><br>`;
+
+    let results = [];
+
+    for(let a=0;a<4;a++){
+      for(let b=a+1;b<4;b++){
+        let winner = match(g[a],g[b]);
+        results.push(winner);
+      }
+    }
+
+    let points = {};
+    g.forEach(t=>points[t]=0);
+
+    results.forEach(w=>points[w]+=3);
+
+    let sorted = Object.keys(points).sort((a,b)=>points[b]-points[a]);
+
+    qualified.push(sorted[0], sorted[1]);
+
+    div.innerHTML += `
+      ${sorted[0]} ⭐<br>
+      ${sorted[1]} ⭐<br>
+      ${sorted[2]}<br>
+      ${sorted[3]}<br>
+    `;
+
+    gDiv.appendChild(div);
+  });
+
+  runKnockout(qualified);
+}
+
+// KNOCKOUT STAGE
+function runKnockout(list){
+
+  let round = list;
+  let stage = document.getElementById("knockout");
+  stage.innerHTML = "";
+
+  let roundNum = 16;
+
+  while(round.length > 1){
+
+    let next = [];
+    let div = document.createElement("div");
+    div.className = "group";
+
+    div.innerHTML = `<b>Round ${roundNum}</b><br>`;
+
+    for(let i=0;i<round.length;i+=2){
+
+      let w = match(round[i], round[i+1]);
+      next.push(w);
+
+      div.innerHTML += `${round[i]} vs ${round[i+1]} → <span class="highlight">${w}</span><br>`;
+    }
+
+    stage.appendChild(div);
+
+    round = next;
+    roundNum /= 2;
+  }
+
+  document.getElementById("status").innerHTML =
+    "🏆 Champion: " + round[0];
+}
 
 </script>
+
+</body>
+</html>
