@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>World Cup 2026 Simulator</title>
+<title>Football AI Match Simulator</title>
 
 <style>
 body {
@@ -11,206 +11,226 @@ body {
   font-family: Arial;
   background: radial-gradient(circle at top, #06121f, #000);
   color: white;
+  overflow: hidden;
 }
 
-header {
-  text-align: center;
-  padding: 15px;
-  font-size: 22px;
-  color: #00ffcc;
-  border-bottom: 1px solid #222;
+.screen {
+  display: none;
+  height: 100vh;
+  padding: 20px;
 }
 
-.container {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
+.active {
+  display: block;
 }
 
-.panel {
-  flex: 1;
-  background: #111;
-  padding: 10px;
-  border-radius: 10px;
-  min-height: 80vh;
-  overflow-y: auto;
-}
-
-button {
+/* Selection */
+select, button {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
+  background: #111;
+  border: 1px solid #00ffcc;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Loading animation */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.95);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.glow {
+  color: #00ffcc;
+  font-size: 20px;
+  text-shadow: 0 0 10px #00ffcc;
+}
+
+/* Result */
+.result-box {
+  text-align: center;
+  margin-top: 80px;
+}
+
+.score {
+  font-size: 40px;
+  color: #00ffcc;
+}
+
+.goal {
+  margin-top: 10px;
+  color: #aaa;
+}
+
+.btn {
+  margin-top: 10px;
+  padding: 10px;
   background: #00ffcc;
   border: none;
+  width: 200px;
   cursor: pointer;
-  font-weight: bold;
-}
-
-.group {
-  margin-bottom: 10px;
-  padding: 8px;
-  background: #1a1a1a;
-  border-radius: 8px;
-}
-
-.match {
-  padding: 5px;
-  border-bottom: 1px solid #333;
-}
-
-.highlight {
-  color: #00ffcc;
 }
 </style>
 </head>
 
 <body>
 
-<header>⚽ WORLD CUP 2026 AI TOURNAMENT SIMULATOR</header>
+<!-- SELECTION SCREEN -->
+<div id="selectScreen" class="screen active">
 
-<div class="container">
+  <h2>⚽ Select Teams</h2>
 
-  <div class="panel">
-    <h3>🎮 CONTROL PANEL</h3>
-    <button onclick="startTournament()">START TOURNAMENT</button>
-    <div id="status">Idle</div>
-  </div>
+  <select id="teamA"></select>
+  <select id="teamB"></select>
 
-  <div class="panel">
-    <h3>🌍 GROUP STAGE</h3>
-    <div id="groups"></div>
-  </div>
+  <button onclick="startMatch()">START MATCH</button>
+</div>
 
-  <div class="panel">
-    <h3>🏆 KNOCKOUT STAGE</h3>
-    <div id="knockout"></div>
+<!-- LOADING OVERLAY -->
+<div id="overlay" class="overlay">
+  <div class="glow" id="loadingText">Initializing AI Engine...</div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen" class="screen">
+
+  <div class="result-box">
+    <div class="score" id="score"></div>
+    <div id="goals"></div>
+
+    <button class="btn" onclick="rematch()">🔁 Rematch</button>
+    <button class="btn" onclick="goBack()">↩ Go Back</button>
   </div>
 
 </div>
 
 <script>
 
-// 48 TEAMS (REALISTIC WORLD CUP POOL)
-let teams = [
-"Argentina","Australia","Belgium","Brazil","Canada","Colombia","Croatia","Denmark",
-"Ecuador","Egypt","England","France","Germany","Ghana","Iran","Italy",
-"Japan","Mexico","Morocco","Netherlands","Nigeria","Norway","Poland","Portugal",
-"Qatar","Saudi Arabia","Senegal","Serbia","South Korea","Spain","Switzerland","USA",
-"Uruguay","Wales","Chile","Peru","Tunisia","Turkey","Ukraine","Algeria",
-"Costa Rica","Panama","Paraguay","Bolivia","New Zealand","Hungary","Czechia","South Africa"
+// TEAMS
+const teams = [
+"Argentina","Brazil","France","England","Spain","Germany",
+"Italy","Portugal","Netherlands","Belgium","Croatia","USA"
 ];
 
-// SHUFFLE FUNCTION
-function shuffle(arr){
-  return arr.sort(()=>Math.random()-0.5);
-}
+let teamA = document.getElementById("teamA");
+let teamB = document.getElementById("teamB");
 
-// CREATE GROUPS
-function createGroups(){
-  let shuffled = shuffle([...teams]);
-  let groups = [];
+teams.forEach(t=>{
+  let a = document.createElement("option");
+  a.text = t;
+  a.value = t;
+  teamA.add(a);
 
-  for(let i=0;i<12;i++){
-    groups.push(shuffled.slice(i*4, i*4+4));
-  }
+  let b = document.createElement("option");
+  b.text = t;
+  b.value = t;
+  teamB.add(b);
+});
 
-  return groups;
-}
+// PLAYER NAMES (fake pool for goals)
+const players = [
+"Cristiano Ronaldo","Lionel Messi","Neymar","Mbappé","Haaland",
+"Benzema","Modrić","De Bruyne","Vinicius Jr","Saka",
+"Foden","Griezmann"
+];
 
-// SIMULATE MATCH
-function match(a,b){
-  let sa = Math.floor(Math.random()*5);
-  let sb = Math.floor(Math.random()*5);
+let lastMatch = null;
 
-  if(sa === sb){
-    return Math.random() > 0.5 ? a : b;
-  }
+// START MATCH
+function startMatch(){
+  let a = teamA.value;
+  let b = teamB.value;
 
-  return sa > sb ? a : b;
-}
+  let overlay = document.getElementById("overlay");
+  let text = document.getElementById("loadingText");
 
-// START TOURNAMENT
-function startTournament(){
+  overlay.style.display = "flex";
 
-  document.getElementById("status").innerHTML = "Generating Groups...";
+  let steps = [
+    "Analyzing Attack...",
+    "Analyzing Midfield...",
+    "Breaking Defensive Lines...",
+    "Calculating Expected Goals...",
+    "Finalizing Simulation..."
+  ];
 
-  let groups = createGroups();
+  let i = 0;
 
-  let gDiv = document.getElementById("groups");
-  gDiv.innerHTML = "";
+  let interval = setInterval(()=>{
+    text.innerHTML = steps[i];
+    i++;
 
-  let qualified = [];
+    if(i === steps.length){
+      clearInterval(interval);
 
-  groups.forEach((g,i)=>{
-    let div = document.createElement("div");
-    div.className = "group";
-
-    div.innerHTML = `<b>Group ${i+1}</b><br>`;
-
-    let results = [];
-
-    for(let a=0;a<4;a++){
-      for(let b=a+1;b<4;b++){
-        let winner = match(g[a],g[b]);
-        results.push(winner);
-      }
+      setTimeout(()=>{
+        overlay.style.display = "none";
+        generateResult(a,b);
+      }, 500);
     }
 
-    let points = {};
-    g.forEach(t=>points[t]=0);
+  }, 800);
+}
 
-    results.forEach(w=>points[w]+=3);
+// GENERATE MATCH RESULT
+function generateResult(a,b){
 
-    let sorted = Object.keys(points).sort((a,b)=>points[b]-points[a]);
+  let scoreA = Math.floor(Math.random()*5);
+  let scoreB = Math.floor(Math.random()*5);
 
-    qualified.push(sorted[0], sorted[1]);
+  let goals = [];
 
-    div.innerHTML += `
-      ${sorted[0]} ⭐<br>
-      ${sorted[1]} ⭐<br>
-      ${sorted[2]}<br>
-      ${sorted[3]}<br>
-    `;
+  function genGoals(team, count){
+    for(let i=0;i<count;i++){
+      let player = players[Math.floor(Math.random()*players.length)];
+      let minute = Math.floor(Math.random()*90)+1;
+      goals.push(`${player} (${team}) ${minute}'`);
+    }
+  }
 
-    gDiv.appendChild(div);
+  genGoals(a, scoreA);
+  genGoals(b, scoreB);
+
+  goals.sort((x,y)=>{
+    return parseInt(x.match(/\d+/)) - parseInt(y.match(/\d+/));
   });
 
-  runKnockout(qualified);
+  document.getElementById("score").innerHTML =
+    `${a} ${scoreA} - ${scoreB} ${b}`;
+
+  document.getElementById("goals").innerHTML =
+    goals.map(g=>`<div class="goal">⚽ ${g}</div>`).join("");
+
+  lastMatch = {a,b};
+
+  showScreen("resultScreen");
 }
 
-// KNOCKOUT STAGE
-function runKnockout(list){
+// REMATCH
+function rematch(){
+  startMatch();
+}
 
-  let round = list;
-  let stage = document.getElementById("knockout");
-  stage.innerHTML = "";
+// GO BACK
+function goBack(){
+  showScreen("selectScreen");
+}
 
-  let roundNum = 16;
-
-  while(round.length > 1){
-
-    let next = [];
-    let div = document.createElement("div");
-    div.className = "group";
-
-    div.innerHTML = `<b>Round ${roundNum}</b><br>`;
-
-    for(let i=0;i<round.length;i+=2){
-
-      let w = match(round[i], round[i+1]);
-      next.push(w);
-
-      div.innerHTML += `${round[i]} vs ${round[i+1]} → <span class="highlight">${w}</span><br>`;
-    }
-
-    stage.appendChild(div);
-
-    round = next;
-    roundNum /= 2;
-  }
-
-  document.getElementById("status").innerHTML =
-    "🏆 Champion: " + round[0];
+// SCREEN SWITCH
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
 </script>
