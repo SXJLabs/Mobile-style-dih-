@@ -13,14 +13,12 @@ body {
   color: white;
 }
 
-/* Layout */
 .container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 100vh;
 }
 
-/* Panels */
 .panel {
   padding: 20px;
   border-right: 1px solid rgba(255,255,255,0.1);
@@ -28,6 +26,7 @@ body {
 
 h1 {
   color: #00ffcc;
+  font-size: 20px;
 }
 
 select, button {
@@ -40,7 +39,10 @@ select, button {
   border-radius: 8px;
 }
 
-/* Center animation */
+button {
+  cursor: pointer;
+}
+
 .center {
   display: flex;
   align-items: center;
@@ -49,12 +51,12 @@ select, button {
 }
 
 .glow {
-  font-size: 20px;
+  font-size: 22px;
   color: #00ffcc;
   text-shadow: 0 0 10px #00ffcc;
+  text-align: center;
 }
 
-/* Stats bars */
 .bar {
   height: 10px;
   background: #222;
@@ -65,7 +67,9 @@ select, button {
 
 .fill {
   height: 100%;
+  width: 0%;
   background: linear-gradient(90deg, #00ffcc, #0066ff);
+  transition: 0.5s;
 }
 </style>
 
@@ -75,44 +79,30 @@ select, button {
 
 <div class="container">
 
-  <!-- LEFT -->
+  <!-- LEFT PANEL -->
   <div class="panel">
-    <h1>⚽ TEAM SELECT</h1>
+    <h1>⚽ TEAM SELECTION</h1>
 
-    <select id="teamA">
-      <option>Argentina</option>
-      <option>Brazil</option>
-      <option>Spain</option>
-      <option>France</option>
-      <option>Germany</option>
-    </select>
-
-    <select id="teamB">
-      <option>Spain</option>
-      <option>France</option>
-      <option>Brazil</option>
-      <option>Argentina</option>
-      <option>England</option>
-    </select>
+    <select id="teamA"></select>
+    <select id="teamB"></select>
 
     <button onclick="simulate()">RUN AI SIMULATION</button>
 
-    <h3>AI STATUS</h3>
+    <h3>STATUS</h3>
     <div id="status">Idle</div>
   </div>
 
-  <!-- CENTER -->
+  <!-- CENTER PANEL -->
   <div class="panel center">
     <div class="glow" id="result">
-      WAITING FOR MATCH DATA...
+      WORLD CUP AI READY
     </div>
-
     <div id="score"></div>
   </div>
 
-  <!-- RIGHT -->
+  <!-- RIGHT PANEL -->
   <div class="panel">
-    <h1>📊 MATCH ANALYSIS</h1>
+    <h1>📊 ANALYSIS ENGINE</h1>
 
     <p>Attack</p>
     <div class="bar"><div class="fill" id="a1"></div></div>
@@ -128,25 +118,58 @@ select, button {
 
 <script>
 
+// FULL 48 TEAMS (SIMULATION POOL)
+const teams = [
+"Argentina","Australia","Belgium","Brazil","Canada","Colombia","Croatia","Denmark",
+"Ecuador","Egypt","England","France","Germany","Ghana","Greece","Hungary",
+"Iran","Italy","Japan","Korea Republic","Mexico","Morocco","Netherlands","Nigeria",
+"Norway","Peru","Poland","Portugal","Qatar","Saudi Arabia","Scotland","Senegal",
+"Serbia","South Africa","Spain","Sweden","Switzerland","Tunisia","Turkey","Ukraine",
+"United States","Uruguay","Venezuela","Wales","Costa Rica","Panama","Algeria","Chile"
+];
+
+// SORT A → Z
+teams.sort();
+
+// FILL DROPDOWNS
+let teamA = document.getElementById("teamA");
+let teamB = document.getElementById("teamB");
+
+teams.forEach(t => {
+  let opt1 = document.createElement("option");
+  opt1.text = t;
+  opt1.value = t;
+  teamA.appendChild(opt1);
+
+  let opt2 = document.createElement("option");
+  opt2.text = t;
+  opt2.value = t;
+  teamB.appendChild(opt2);
+});
+
+
+// SIMULATION ENGINE
 function simulate() {
-  let a = document.getElementById("teamA").value;
-  let b = document.getElementById("teamB").value;
+
+  let a = teamA.value;
+  let b = teamB.value;
 
   let status = document.getElementById("status");
   let result = document.getElementById("result");
 
-  status.innerHTML = "Analyzing Tactical Data...";
-
   let steps = [
-    "Checking Form...",
-    "Analyzing Attack Strength...",
-    "Running AI Prediction...",
-    "Finalizing Result..."
+    "Analyzing Team Form...",
+    "Processing Attack Data...",
+    "Processing Defense Data...",
+    "Running AI Simulation..."
   ];
 
   let i = 0;
 
+  status.innerHTML = "Starting AI Engine...";
+
   let interval = setInterval(() => {
+
     status.innerHTML = steps[i];
     i++;
 
@@ -156,14 +179,19 @@ function simulate() {
       let scoreA = Math.floor(Math.random() * 4);
       let scoreB = Math.floor(Math.random() * 4);
 
-      result.innerHTML = `${a} ${scoreA} - ${scoreB} ${b}`;
+      result.innerHTML = `
+        ${a} ${scoreA} - ${scoreB} ${b}
+      `;
 
+      // RANDOM STATS BARS
       document.getElementById("a1").style.width = Math.random()*100 + "%";
       document.getElementById("a2").style.width = Math.random()*100 + "%";
       document.getElementById("a3").style.width = Math.random()*100 + "%";
+
+      status.innerHTML = "Simulation Complete";
     }
 
-  }, 1000);
+  }, 900);
 }
 
 </script>
