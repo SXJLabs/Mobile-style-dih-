@@ -1,134 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>World Cup AI Command Center</title>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: radial-gradient(circle at top, #0b1b2b, #000);
-  color: white;
-}
-
-.container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-}
-
-.panel {
-  padding: 20px;
-  border-right: 1px solid rgba(255,255,255,0.1);
-}
-
-h1 {
-  color: #00ffcc;
-  font-size: 20px;
-}
-
-select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background: #111;
-  border: 1px solid #00ffcc;
-  color: white;
-  border-radius: 8px;
-}
-
-button {
-  cursor: pointer;
-}
-
-.center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.glow {
-  font-size: 22px;
-  color: #00ffcc;
-  text-shadow: 0 0 10px #00ffcc;
-  text-align: center;
-}
-
-.bar {
-  height: 10px;
-  background: #222;
-  border-radius: 5px;
-  margin-bottom: 10px;
-  overflow: hidden;
-}
-
-.fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #00ffcc, #0066ff);
-  transition: 0.5s;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="container">
-
-  <!-- LEFT PANEL -->
-  <div class="panel">
-    <h1>⚽ TEAM SELECTION</h1>
-
-    <select id="teamA"></select>
-    <select id="teamB"></select>
-
-    <button onclick="simulate()">RUN AI SIMULATION</button>
-
-    <h3>STATUS</h3>
-    <div id="status">Idle</div>
-  </div>
-
-  <!-- CENTER PANEL -->
-  <div class="panel center">
-    <div class="glow" id="result">
-      WORLD CUP AI READY
-    </div>
-    <div id="score"></div>
-  </div>
-
-  <!-- RIGHT PANEL -->
-  <div class="panel">
-    <h1>📊 ANALYSIS ENGINE</h1>
-
-    <p>Attack</p>
-    <div class="bar"><div class="fill" id="a1"></div></div>
-
-    <p>Defense</p>
-    <div class="bar"><div class="fill" id="a2"></div></div>
-
-    <p>Form</p>
-    <div class="bar"><div class="fill" id="a3"></div></div>
-  </div>
-
-</div>
-
 <script>
 
-// FULL 48 TEAMS (SIMULATION POOL)
+// WORLD CUP STYLE TEAM DATABASE (STRUCTURED LIKE REAL FIFA SYSTEM)
 const teams = [
-"Argentina","Australia","Belgium","Brazil","Canada","Colombia","Croatia","Denmark",
-"Ecuador","Egypt","England","France","Germany","Ghana","Greece","Hungary",
-"Iran","Italy","Japan","Korea Republic","Mexico","Morocco","Netherlands","Nigeria",
-"Norway","Peru","Poland","Portugal","Qatar","Saudi Arabia","Scotland","Senegal",
-"Serbia","South Africa","Spain","Sweden","Switzerland","Tunisia","Turkey","Ukraine",
-"United States","Uruguay","Venezuela","Wales","Costa Rica","Panama","Algeria","Chile"
+  // AFC
+  "Australia","Iran","Japan","Jordan","Qatar","Saudi Arabia","South Korea","Uzbekistan",
+
+  // CAF
+  "Algeria","Cape Verde","Egypt","Ghana","Morocco","Nigeria","Senegal","South Africa","Tunisia","DR Congo",
+
+  // CONCACAF
+  "Canada","Costa Rica","Cuba","Haiti","Mexico","Panama","United States",
+
+  // CONMEBOL
+  "Argentina","Bolivia","Brazil","Chile","Colombia","Ecuador","Paraguay","Peru","Uruguay","Venezuela",
+
+  // OFC
+  "New Zealand","New Caledonia",
+
+  // UEFA
+  "Austria","Belgium","Croatia","Czechia","Denmark","England","France","Germany",
+  "Hungary","Italy","Netherlands","Norway","Poland","Portugal","Scotland","Serbia",
+  "Spain","Sweden","Switzerland","Turkey","Ukraine","Wales","Bosnia and Herzegovina"
 ];
 
-// SORT A → Z
+// SORT ALPHABETICALLY (A → Z like you asked)
 teams.sort();
 
 // FILL DROPDOWNS
@@ -147,54 +42,4 @@ teams.forEach(t => {
   teamB.appendChild(opt2);
 });
 
-
-// SIMULATION ENGINE
-function simulate() {
-
-  let a = teamA.value;
-  let b = teamB.value;
-
-  let status = document.getElementById("status");
-  let result = document.getElementById("result");
-
-  let steps = [
-    "Analyzing Team Form...",
-    "Processing Attack Data...",
-    "Processing Defense Data...",
-    "Running AI Simulation..."
-  ];
-
-  let i = 0;
-
-  status.innerHTML = "Starting AI Engine...";
-
-  let interval = setInterval(() => {
-
-    status.innerHTML = steps[i];
-    i++;
-
-    if(i === steps.length) {
-      clearInterval(interval);
-
-      let scoreA = Math.floor(Math.random() * 4);
-      let scoreB = Math.floor(Math.random() * 4);
-
-      result.innerHTML = `
-        ${a} ${scoreA} - ${scoreB} ${b}
-      `;
-
-      // RANDOM STATS BARS
-      document.getElementById("a1").style.width = Math.random()*100 + "%";
-      document.getElementById("a2").style.width = Math.random()*100 + "%";
-      document.getElementById("a3").style.width = Math.random()*100 + "%";
-
-      status.innerHTML = "Simulation Complete";
-    }
-
-  }, 900);
-}
-
 </script>
-
-</body>
-</html>
