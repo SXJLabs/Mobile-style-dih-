@@ -2,141 +2,169 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Video Feed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup AI Command Center</title>
+
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: #0f0f0f;
+  background: radial-gradient(circle at top, #0b1b2b, #000);
   color: white;
 }
 
-header {
-  background: #202020;
-  padding: 15px;
-  text-align: center;
-  font-size: 20px;
-  font-weight: bold;
-}
-
+/* Layout */
 .container {
-  max-width: 600px;
-  margin: auto;
-  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
 }
 
-.upload-box {
-  background: #1f1f1f;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 15px;
+/* Panels */
+.panel {
+  padding: 20px;
+  border-right: 1px solid rgba(255,255,255,0.1);
 }
 
-input, textarea {
+h1 {
+  color: #00ffcc;
+}
+
+select, button {
   width: 100%;
-  margin-top: 5px;
-  padding: 8px;
-  border: none;
-  border-radius: 5px;
-}
-
-button {
+  padding: 10px;
   margin-top: 10px;
-  width: 100%;
-  padding: 10px;
-  background: red;
+  background: #111;
+  border: 1px solid #00ffcc;
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  border-radius: 8px;
 }
 
-.post {
-  background: #1a1a1a;
-  margin-bottom: 15px;
-  border-radius: 10px;
+/* Center animation */
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.glow {
+  font-size: 20px;
+  color: #00ffcc;
+  text-shadow: 0 0 10px #00ffcc;
+}
+
+/* Stats bars */
+.bar {
+  height: 10px;
+  background: #222;
+  border-radius: 5px;
+  margin-bottom: 10px;
   overflow: hidden;
 }
 
-.post video {
-  width: 100%;
-}
-
-.post img {
-  width: 100%;
-}
-
-.caption {
-  padding: 10px;
+.fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ffcc, #0066ff);
 }
 </style>
+
 </head>
 
 <body>
 
-<header>🔥 My Video Feed (YouTube + Insta Style)</header>
-
 <div class="container">
 
-  <div class="upload-box">
-    <h3>Upload Video/Post</h3>
-    <input type="text" id="title" placeholder="Title">
-    <input type="text" id="url" placeholder="Video/Image URL">
-    <textarea id="desc" placeholder="Description"></textarea>
-    <button onclick="uploadPost()">Upload</button>
+  <!-- LEFT -->
+  <div class="panel">
+    <h1>⚽ TEAM SELECT</h1>
+
+    <select id="teamA">
+      <option>Argentina</option>
+      <option>Brazil</option>
+      <option>Spain</option>
+      <option>France</option>
+      <option>Germany</option>
+    </select>
+
+    <select id="teamB">
+      <option>Spain</option>
+      <option>France</option>
+      <option>Brazil</option>
+      <option>Argentina</option>
+      <option>England</option>
+    </select>
+
+    <button onclick="simulate()">RUN AI SIMULATION</button>
+
+    <h3>AI STATUS</h3>
+    <div id="status">Idle</div>
   </div>
 
-  <div id="feed"></div>
+  <!-- CENTER -->
+  <div class="panel center">
+    <div class="glow" id="result">
+      WAITING FOR MATCH DATA...
+    </div>
+
+    <div id="score"></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel">
+    <h1>📊 MATCH ANALYSIS</h1>
+
+    <p>Attack</p>
+    <div class="bar"><div class="fill" id="a1"></div></div>
+
+    <p>Defense</p>
+    <div class="bar"><div class="fill" id="a2"></div></div>
+
+    <p>Form</p>
+    <div class="bar"><div class="fill" id="a3"></div></div>
+  </div>
 
 </div>
 
 <script>
 
-let posts = JSON.parse(localStorage.getItem("posts")) || [];
+function simulate() {
+  let a = document.getElementById("teamA").value;
+  let b = document.getElementById("teamB").value;
 
-function uploadPost() {
-  let title = document.getElementById("title").value;
-  let url = document.getElementById("url").value;
-  let desc = document.getElementById("desc").value;
+  let status = document.getElementById("status");
+  let result = document.getElementById("result");
 
-  if(!title || !url) return alert("Fill required fields");
+  status.innerHTML = "Analyzing Tactical Data...";
 
-  posts.unshift({ title, url, desc });
+  let steps = [
+    "Checking Form...",
+    "Analyzing Attack Strength...",
+    "Running AI Prediction...",
+    "Finalizing Result..."
+  ];
 
-  localStorage.setItem("posts", JSON.stringify(posts));
+  let i = 0;
 
-  render();
-}
+  let interval = setInterval(() => {
+    status.innerHTML = steps[i];
+    i++;
 
-function render() {
-  let feed = document.getElementById("feed");
-  feed.innerHTML = "";
+    if(i === steps.length) {
+      clearInterval(interval);
 
-  posts.forEach(p => {
-    let div = document.createElement("div");
-    div.className = "post";
+      let scoreA = Math.floor(Math.random() * 4);
+      let scoreB = Math.floor(Math.random() * 4);
 
-    let media = "";
+      result.innerHTML = `${a} ${scoreA} - ${scoreB} ${b}`;
 
-    if(p.url.includes(".mp4")) {
-      media = `<video controls src="${p.url}"></video>`;
-    } else {
-      media = `<img src="${p.url}">`;
+      document.getElementById("a1").style.width = Math.random()*100 + "%";
+      document.getElementById("a2").style.width = Math.random()*100 + "%";
+      document.getElementById("a3").style.width = Math.random()*100 + "%";
     }
 
-    div.innerHTML = `
-      ${media}
-      <div class="caption">
-        <h3>${p.title}</h3>
-        <p>${p.desc}</p>
-      </div>
-    `;
-
-    feed.appendChild(div);
-  });
+  }, 1000);
 }
-
-render();
 
 </script>
 
