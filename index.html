@@ -2,225 +2,692 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Football Match Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 Simulator</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #050b14;
-  color: white;
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#050b14;
+  color:white;
 }
 
-/* screens */
-.screen {
-  display: none;
-  height: 100vh;
-  padding: 20px;
-}
-.active {
-  display: block;
+/* ================= SXJ SPLASH SCREEN ================= */
+
+#splashScreen{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+  z-index:99999;
 }
 
-/* buttons */
-select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background: #111;
-  border: 1px solid #00ffcc;
-  color: white;
-  border-radius: 8px;
+.sxj-logo{
+  color:white;
+  font-size:72px;
+  font-weight:900;
+  letter-spacing:12px;
+  opacity:0;
+  animation:logoIntro 2.5s ease forwards;
 }
 
-/* overlay */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.95);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
+.wind{
+  position:absolute;
+  width:300px;
+  height:3px;
+  background:white;
+  filter:blur(4px);
+  left:-350px;
+  top:50%;
+  animation:windMove 2.5s ease forwards;
 }
 
-.glow {
-  color: #00ffcc;
-  font-size: 20px;
+@keyframes windMove{
+  0%{
+    left:-350px;
+    opacity:0;
+  }
+
+  20%{
+    opacity:1;
+  }
+
+  100%{
+    left:120%;
+    opacity:0;
+  }
 }
 
-/* result */
-.score {
-  font-size: 40px;
-  color: #00ffcc;
-  text-align: center;
+@keyframes logoIntro{
+  0%{
+    opacity:0;
+    transform:translateX(-100px);
+  }
+
+  35%{
+    opacity:1;
+    transform:translateX(0);
+  }
+
+  70%{
+    opacity:1;
+    text-shadow:
+      0 0 15px white,
+      0 0 30px white;
+  }
+
+  100%{
+    opacity:0;
+    transform:scale(1.1);
+  }
 }
 
-.goal {
-  color: #aaa;
-  text-align: center;
-  margin-top: 5px;
+/* ================= MAIN SCREENS ================= */
+
+.screen{
+  display:none;
+  padding:15px;
+  min-height:100vh;
+  box-sizing:border-box;
 }
 
-.btn {
-  width: 200px;
-  margin: 10px auto;
-  display: block;
-  padding: 10px;
-  background: #00ffcc;
-  border: none;
-  cursor: pointer;
+.active{
+  display:block;
 }
+
+/* ================= INPUTS ================= */
+
+select,
+button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  background:#111;
+  border:1px solid #00ffcc;
+  color:white;
+  border-radius:10px;
+  font-size:16px;
+}
+
+/* ================= WORLD CUP OVERLAY ================= */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.95);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  text-align:center;
+}
+
+.wc{
+  font-size:28px;
+  color:#00ffcc;
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{
+    transform:scale(1);
+    opacity:.6;
+  }
+
+  50%{
+    transform:scale(1.15);
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1);
+    opacity:.6;
+  }
+}
+
+/* ================= RESULT SCREEN ================= */
+
+.score{
+  font-size:34px;
+  text-align:center;
+  color:#00ffcc;
+  margin-top:10px;
+}
+
+.stats,
+.goalBox{
+  margin-top:12px;
+  background:#0b1220;
+  padding:12px;
+  border-radius:12px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  font-size:14px;
+  color:#ddd;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width:600px){
+
+  .row{
+    flex-direction:column;
+    gap:3px;
+  }
+
+  .sxj-logo{
+    font-size:54px;
+  }
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- SELECT SCREEN -->
-<div id="selectScreen" class="screen active">
-  <h2>⚽ Select Teams</h2>
+<!-- SXJ INTRO -->
 
-  <select id="teamA"></select>
-  <select id="teamB"></select>
-
-  <button onclick="startMatch()">START MATCH</button>
+<div id="splashScreen">
+  <div class="wind"></div>
+  <div class="sxj-logo">SXJ</div>
 </div>
 
-<!-- LOADING OVERLAY -->
+<!-- TEAM SELECT SCREEN -->
+
+<div id="selectScreen" class="screen">
+
+  <h2>🏆 World Cup 2026 Simulator</h2>
+
+  <select id="teamA"></select>
+
+  <select id="teamB"></select>
+
+  <button onclick="startMatch()">
+    START MATCH
+  </button>
+
+</div>
+
+<!-- WORLD CUP ANIMATION -->
+
 <div id="overlay" class="overlay">
-  <div class="glow" id="loadingText">Starting AI Engine...</div>
+
+  <div class="wc">
+    🏆 FIFA WORLD CUP 2026
+  </div>
+
+  <p id="loadingText">
+    Loading Engine...
+  </p>
+
 </div>
 
 <!-- RESULT SCREEN -->
+
 <div id="resultScreen" class="screen">
 
-  <div class="score" id="score"></div>
-  <div id="goals"></div>
+  <div class="score" id="finalScore"></div>
 
-  <button class="btn" onclick="rematch()">🔁 Rematch</button>
-  <button class="btn" onclick="goBack()">↩ Go Back</button>
+  <div class="stats" id="statsBox"></div>
+
+  <div class="goalBox" id="goalBox"></div>
+
+  <button onclick="goBack()">
+    Back
+  </button>
 
 </div>
 
 <script>
 
-// TEAMS
-const teams = [
-"Argentina","Brazil","France","England","Spain","Germany",
-"Italy","Portugal","Netherlands","Belgium","Croatia","USA"
+/* ================= TEAMS ================= */
+  let teams = [
+"Algeria",
+"Argentina",
+"Australia",
+"Austria",
+"Belgium",
+"Bosnia and Herzegovina",
+"Brazil",
+"Cabo Verde",
+"Canada",
+"Colombia",
+"Congo DR",
+"Côte d'Ivoire",
+"Croatia",
+"Curaçao",
+"Czechia",
+"Ecuador",
+"Egypt",
+"England",
+"France",
+"Germany",
+"Ghana",
+"Haiti",
+"IR Iran",
+"Iraq",
+"Japan",
+"Jordan",
+"Korea Republic",
+"Mexico",
+"Morocco",
+"Netherlands",
+"New Zealand",
+"Norway",
+"Panama",
+"Paraguay",
+"Portugal",
+"Qatar",
+"Saudi Arabia",
+"Scotland",
+"Senegal",
+"South Africa",
+"Spain",
+"Sweden",
+"Switzerland",
+"Tunisia",
+"Türkiye",
+"United States",
+"Uruguay",
+"Uzbekistan"
 ];
 
-// fill dropdowns
-let teamA = document.getElementById("teamA");
-let teamB = document.getElementById("teamB");
+teams.sort((a,b)=>a.localeCompare(b));
 
-teams.forEach(t=>{
-  let a = document.createElement("option");
-  let b = document.createElement("option");
+/* ================= TEAM STRENGTHS ================= */
 
-  a.text = b.text = t;
-  a.value = b.value = t;
+const teamStats = {
 
-  teamA.add(a);
-  teamB.add(b);
+"Argentina":[92,88,86],
+"Brazil":[91,87,85],
+"France":[93,89,88],
+"England":[90,86,85],
+"Spain":[88,90,86],
+"Germany":[87,88,86],
+"Italy":[85,86,88],
+"Portugal":[87,85,83],
+"Netherlands":[86,85,84],
+"Belgium":[85,86,83],
+"Croatia":[84,85,82],
+"Morocco":[82,83,84],
+"Japan":[80,82,81],
+"Mexico":[78,79,78],
+"Canada":[76,77,75],
+"United States":[80,79,78],
+"Egypt":[79,78,77],
+"Senegal":[83,82,81],
+"Uruguay":[85,84,83],
+"Colombia":[83,82,81],
+"Switzerland":[82,83,82],
+"Norway":[84,82,80],
+"Türkiye":[81,82,80],
+"Qatar":[75,76,75],
+"Saudi Arabia":[76,75,74],
+"Australia":[77,76,75],
+"New Zealand":[73,72,72],
+"Korea Republic":[82,83,81],
+"IR Iran":[80,79,78],
+"Iraq":[74,73,72],
+"Uzbekistan":[75,74,73],
+
+"Algeria":[78,77,76],
+"Austria":[81,80,80],
+"Bosnia and Herzegovina":[75,74,74],
+"Cabo Verde":[73,72,72],
+"Congo DR":[75,74,74],
+"Côte d'Ivoire":[81,80,79],
+"Curaçao":[70,70,69],
+"Czechia":[79,79,78],
+"Ecuador":[80,80,79],
+"Ghana":[78,77,77],
+"Haiti":[68,68,67],
+"Jordan":[71,71,70],
+"Panama":[73,72,72],
+"Paraguay":[77,76,76],
+"Scotland":[80,80,79],
+"South Africa":[74,74,73],
+"Sweden":[80,79,79],
+"Tunisia":[76,75,75]
+};
+
+function getStrength(team){
+
+  if(!teamStats[team]) return 75;
+
+  let [attack,midfield,defense] = teamStats[team];
+
+  return (attack + midfield + defense) / 3;
+}
+
+/* ================= PLAYERS ================= */
+
+const players = {
+
+"Argentina":["Messi","Julián Álvarez","Lautaro Martínez"],
+"Brazil":["Vinícius Júnior","Rodrygo","Richarlison"],
+"France":["Mbappé","Griezmann","Thuram"],
+"England":["Harry Kane","Saka","Foden"],
+"Spain":["Morata","Pedri","Lamine Yamal"],
+"Germany":["Musiala","Havertz","Kimmich"],
+"Italy":["Chiesa","Barella","Raspadori"],
+"Portugal":["Cristiano Ronaldo","Bruno Fernandes","Nuno Mendes"],
+"Netherlands":["Depay","Gakpo","Xavi Simons"],
+"Belgium":["De Bruyne","Lukaku","Doku"],
+"Croatia":["Modrić","Kramarić","Perišić"],
+"Morocco":["Hakimi","Ziyech","En-Nesyri"],
+"Japan":["Kubo","Mitoma","Minamino"],
+"Mexico":["Lozano","Jiménez","Vega"],
+"Canada":["Jonathan David","Larin","Buchanan"],
+"United States":["Pulisic","Balogun","Reyna"],
+"Egypt":["Salah","Marmoush","Trezeguet"],
+"Senegal":["Mané","Jackson","Sarr"],
+"Uruguay":["Darwin Núñez","Valverde","Pellistri"],
+"Colombia":["Luis Díaz","Jhon Durán","James Rodríguez"],
+"Switzerland":["Xhaka","Embolo","Shaqiri"],
+"Norway":["Haaland","Ødegaard","Sørloth"],
+"Türkiye":["Çalhanoğlu","Yıldız","Aktürkoğlu"],
+"Qatar":["Afif","Almoez Ali","Hassan"],
+"Saudi Arabia":["Al-Dawsari","Al-Shehri","Al-Buraikan"],
+"Australia":["Goodwin","Boyle","Maclaren"],
+"New Zealand":["Chris Wood","Barbarouses","Singh"],
+"Korea Republic":["Son Heung-min","Hwang Hee-chan","Lee Kang-in"],
+"IR Iran":["Taremi","Azmoun","Ghoddos"],
+"Iraq":["Ali Jasim","Aymen Hussein","Adnan"],
+"Uzbekistan":["Shomurodov","Hamrobekov","Saidov"],
+
+"Algeria":["Mahrez","Slimani","Bounedjah"],
+"Austria":["Sabitzer","Baumgartner","Arnautović"],
+"Bosnia and Herzegovina":["Džeko","Pjanić","Krunić"],
+"Cabo Verde":["Semedo","Pina","Garcia"],
+"Congo DR":["Bakambu","Mbemba","Bolasie"],
+"Côte d'Ivoire":["Haller","Adingra","Kessié"],
+"Curaçao":["Bacuna","Janga","Maria"],
+"Czechia":["Schick","Souček","Coufal"],
+"Ecuador":["Valencia","Caicedo","Plata"],
+"Ghana":["Kudus","Ayew","Partey"],
+"Haiti":["Nazon","Pierrot","Pascual"],
+"Jordan":["Al-Naimat","Al-Taamari","Abu Taha"],
+"Panama":["Díaz","Torres","Rodríguez"],
+"Paraguay":["Almirón","Sanabria","Romero"],
+"Scotland":["McTominay","Robertson","Dykes"],
+"South Africa":["Lorch","Makgopa","Mokoena"],
+"Sweden":["Isak","Kulusevski","Gyökeres"],
+"Tunisia":["Msakni","Jaziri","Sliti"]
+};
+
+/* ================= UI SETUP ================= */
+
+const teamA = document.getElementById("teamA");
+const teamB = document.getElementById("teamB");
+
+teams.forEach(team=>{
+
+  const optionA = document.createElement("option");
+  const optionB = document.createElement("option");
+
+  optionA.text = team;
+  optionB.text = team;
+
+  optionA.value = team;
+  optionB.value = team;
+
+  teamA.add(optionA);
+  teamB.add(optionB);
+
 });
 
-// player pool
-const players = [
-"Cristiano Ronaldo","Messi","Neymar","Mbappe","Haaland",
-"Benzema","Modric","De Bruyne","Vinicius Jr","Saka"
-];
+function randomPlayer(team){
 
-let lastTeams = null;
+  return players[team][
+    Math.floor(Math.random()*players[team].length)
+  ];
 
-// START MATCH
+}
+
+/* ================= MATCH ENGINE ================= */
+  function simulate(A,B){
+
+  let strengthA = getStrength(A);
+  let strengthB = getStrength(B);
+
+  let scoreA = 0;
+  let scoreB = 0;
+
+  /* realistic strength weighting */
+
+  let advantage = strengthA - strengthB;
+
+  let expectedA = Math.max(0.6, (strengthA / 25));
+  let expectedB = Math.max(0.4, (strengthB / 28));
+
+  scoreA = Math.round(
+    (Math.random() * expectedA) +
+    (advantage > 0 ? advantage / 25 : 0)
+  );
+
+  scoreB = Math.round(
+    (Math.random() * expectedB) +
+    (advantage < 0 ? Math.abs(advantage) / 25 : 0)
+  );
+
+  /* upset protection */
+
+  if(strengthA - strengthB > 12){
+
+    if(scoreB > scoreA){
+      scoreB = Math.max(0, scoreA - 1);
+    }
+
+  }
+
+  if(strengthB - strengthA > 12){
+
+    if(scoreA > scoreB){
+      scoreA = Math.max(0, scoreB - 1);
+    }
+
+  }
+
+  /* realistic possession */
+
+  let possA = Math.round(
+    (strengthA / (strengthA + strengthB)) * 100
+  );
+
+  let possB = 100 - possA;
+
+  /* realistic stats */
+
+  let shotsA =
+    Math.floor(scoreA * 3 + Math.random() * 8 + 4);
+
+  let shotsB =
+    Math.floor(scoreB * 3 + Math.random() * 8 + 4);
+
+  let onTargetA =
+    Math.max(scoreA, Math.floor(shotsA * 0.45));
+
+  let onTargetB =
+    Math.max(scoreB, Math.floor(shotsB * 0.45));
+
+  let passesA =
+    Math.floor(250 + possA * 5 + Math.random()*80);
+
+  let passesB =
+    Math.floor(250 + possB * 5 + Math.random()*80);
+
+  return {
+
+    scoreA,
+    scoreB,
+
+    possA,
+    possB,
+
+    shotsA,
+    shotsB,
+
+    onTargetA,
+    onTargetB,
+
+    passesA,
+    passesB
+  };
+}
+
+/* ================= START MATCH ================= */
+
 function startMatch(){
 
-  let a = teamA.value;
-  let b = teamB.value;
+  const A = teamA.value;
+  const B = teamB.value;
 
-  lastTeams = {a,b};
+  document.getElementById("overlay").style.display = "flex";
 
-  let overlay = document.getElementById("overlay");
-  let text = document.getElementById("loadingText");
+  const steps = [
 
-  overlay.style.display = "flex";
+    "Loading squads...",
+    "Analyzing attack...",
+    "Analyzing midfield...",
+    "Analyzing defense...",
+    "Calculating match probabilities...",
+    "Running World Cup 2026 simulation...",
+    "Finalizing result..."
 
-  let steps = [
-    "Analyzing Attack...",
-    "Analyzing Midfield...",
-    "Analyzing Defense...",
-    "Calculating Chances...",
-    "Final Simulation..."
   ];
 
   let i = 0;
 
-  let interval = setInterval(()=>{
+  const interval = setInterval(()=>{
 
-    text.innerHTML = steps[i];
+    document.getElementById("loadingText").innerText =
+      steps[i];
+
     i++;
 
-    if(i === steps.length){
+    if(i >= steps.length){
+
       clearInterval(interval);
 
       setTimeout(()=>{
-        overlay.style.display = "none";
-        generateResult(a,b);
-      }, 400);
+
+        document.getElementById("overlay").style.display =
+          "none";
+
+        let result = simulate(A,B);
+
+        document.getElementById("finalScore").innerHTML =
+          `${A} ${result.scoreA} - ${result.scoreB} ${B}`;
+
+        document.getElementById("statsBox").innerHTML =
+
+        `
+        <div class="row">
+          <b>Possession</b>
+          <span>${result.possA}% - ${result.possB}%</span>
+        </div>
+
+        <div class="row">
+          <b>Shots</b>
+          <span>${result.shotsA} - ${result.shotsB}</span>
+        </div>
+
+        <div class="row">
+          <b>Shots On Target</b>
+          <span>${result.onTargetA} - ${result.onTargetB}</span>
+        </div>
+
+        <div class="row">
+          <b>Passes Completed</b>
+          <span>${result.passesA} - ${result.passesB}</span>
+        </div>
+        `;
+
+        let goals = [];
+
+        for(let i=0;i<result.scoreA;i++){
+
+          goals.push(
+            `⚽ ${randomPlayer(A)} (${A})`
+          );
+
+        }
+
+        for(let i=0;i<result.scoreB;i++){
+
+          goals.push(
+            `⚽ ${randomPlayer(B)} (${B})`
+          );
+
+        }
+
+        goals.sort(()=>Math.random()-0.5);
+
+        document.getElementById("goalBox").innerHTML =
+          `
+          <b>Goalscorers</b><br><br>
+          ${goals.join("<br>")}
+          `;
+
+        showScreen("resultScreen");
+
+      },800);
+
     }
 
-  }, 700);
+  },600);
+
 }
 
-// RESULT GENERATION
-function generateResult(a,b){
+/* ================= UI ================= */
 
-  let scoreA = Math.floor(Math.random()*5);
-  let scoreB = Math.floor(Math.random()*5);
+function goBack(){
 
-  let goals = [];
+  showScreen("selectScreen");
 
-  function addGoals(team, count){
-    for(let i=0;i<count;i++){
-      let player = players[Math.floor(Math.random()*players.length)];
-      let minute = Math.floor(Math.random()*90)+1;
-      goals.push(`${player} (${team}) ${minute}'`);
-    }
-  }
+}
 
-  addGoals(a, scoreA);
-  addGoals(b, scoreB);
+function showScreen(id){
 
-  goals.sort((x,y)=>{
-    return parseInt(x.match(/\d+/)) - parseInt(y.match(/\d+/));
+  document
+  .querySelectorAll(".screen")
+  .forEach(screen=>{
+
+    screen.classList.remove("active");
+
   });
 
-  document.getElementById("score").innerHTML =
-    `${a} ${scoreA} - ${scoreB} ${b}`;
+  document
+  .getElementById(id)
+  .classList.add("active");
 
-  document.getElementById("goals").innerHTML =
-    goals.map(g=>`<div class="goal">⚽ ${g}</div>`).join("");
-
-  showScreen("resultScreen");
 }
 
-// REMATCH
-function rematch(){
-  startMatch();
-}
+/* ================= SXJ INTRO ================= */
 
-// GO BACK
-function goBack(){
-  showScreen("selectScreen");
-}
+window.addEventListener("load",()=>{
 
-// SCREEN SWITCH
-function showScreen(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
+  const splash =
+    document.getElementById("splashScreen");
+
+  setTimeout(()=>{
+
+    splash.style.display = "none";
+
+    showScreen("selectScreen");
+
+  },2500);
+
+});
 
 </script>
 
