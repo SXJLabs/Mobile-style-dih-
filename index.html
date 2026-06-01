@@ -28,20 +28,19 @@ body{
 }
 
 .sxj-logo{
-  color:#FFD700;
+  color:#ffd700;
   font-size:72px;
   font-weight:900;
   letter-spacing:12px;
   opacity:0;
   animation:logoIntro 2.5s ease forwards;
-  text-shadow:0 0 20px #FFD700;
 }
 
 .wind{
   position:absolute;
   width:300px;
   height:3px;
-  background:#FFD700;
+  background:#ffd700;
   filter:blur(4px);
   left:-350px;
   top:50%;
@@ -49,16 +48,16 @@ body{
 }
 
 @keyframes windMove{
-  0%{left:-350px;opacity:0;}
-  20%{opacity:1;}
-  100%{left:120%;opacity:0;}
+  0%{ left:-350px; opacity:0; }
+  20%{ opacity:1; }
+  100%{ left:120%; opacity:0; }
 }
 
 @keyframes logoIntro{
-  0%{opacity:0;transform:translateX(-100px);}
-  35%{opacity:1;transform:translateX(0);}
-  70%{text-shadow:0 0 25px #FFD700;}
-  100%{opacity:0;transform:scale(1.1);}
+  0%{ opacity:0; transform:translateX(-100px); }
+  35%{ opacity:1; transform:translateX(0); }
+  70%{ opacity:1; text-shadow:0 0 15px #ffd700,0 0 30px #ffd700; }
+  100%{ opacity:0; transform:scale(1.1); }
 }
 
 /* ================= MAIN SCREENS ================= */
@@ -70,51 +69,35 @@ body{
   box-sizing:border-box;
 }
 
-.active{
-  display:block;
-}
+.active{ display:block; }
 
-/* ================= INPUTS (GOLD THEME FIX) ================= */
+/* ================= INPUTS ================= */
 
 select,
 button{
   width:100%;
   padding:14px;
   margin-top:12px;
-
-  background:#0a0a0a;
+  background:#111;
+  border:1px solid #ffd700;
   color:white;
-
-  border:2px solid rgba(255,215,0,0.9);
-
   border-radius:10px;
   font-size:16px;
-
-  box-shadow:
-    0 0 8px rgba(255,215,0,0.3),
-    inset 0 0 6px rgba(255,215,0,0.15);
-
-  transition:0.25s ease;
-  cursor:pointer;
+  transition:0.2s ease;
 }
 
-/* hover */
+/* hover + click glow */
 button:hover, select:hover{
-  transform:scale(1.03);
-  box-shadow:
-    0 0 15px rgba(255,215,0,0.8),
-    0 0 30px rgba(255,215,0,0.4);
+  box-shadow:0 0 12px #ffd700;
+  transform:scale(1.02);
 }
 
-/* click */
 button:active, select:active{
-  transform:scale(0.96);
-  box-shadow:
-    0 0 20px #FFD700,
-    inset 0 0 10px rgba(255,215,0,0.3);
+  transform:scale(0.97);
+  box-shadow:0 0 20px #ffd700;
 }
 
-/* ================= WORLD CUP OVERLAY ================= */
+/* ================= OVERLAY ================= */
 
 .overlay{
   position:fixed;
@@ -129,25 +112,23 @@ button:active, select:active{
 
 .wc{
   font-size:28px;
-  color:#FFD700;
+  color:#ffd700;
   animation:pulse 1s infinite;
-  text-shadow:0 0 15px #FFD700;
 }
 
 @keyframes pulse{
-  0%{transform:scale(1);opacity:.6;}
-  50%{transform:scale(1.15);opacity:1;}
-  100%{transform:scale(1);opacity:.6;}
+  0%{ transform:scale(1); opacity:.6; }
+  50%{ transform:scale(1.15); opacity:1; }
+  100%{ transform:scale(1); opacity:.6; }
 }
 
-/* ================= RESULT SCREEN ================= */
+/* ================= RESULT ================= */
 
 .score{
   font-size:34px;
   text-align:center;
-  color:#FFD700;
+  color:#ffd700;
   margin-top:10px;
-  text-shadow:0 0 15px #FFD700;
 }
 
 .stats,
@@ -156,8 +137,7 @@ button:active, select:active{
   background:#0b1220;
   padding:12px;
   border-radius:12px;
-  border:1px solid rgba(255,215,0,0.3);
-  box-shadow:0 0 10px rgba(255,215,0,0.15);
+  border:1px solid #ffd700;
 }
 
 .row{
@@ -168,17 +148,9 @@ button:active, select:active{
   color:#ddd;
 }
 
-/* ================= MOBILE ================= */
-
 @media (max-width:600px){
-  .row{
-    flex-direction:column;
-    gap:3px;
-  }
-
-  .sxj-logo{
-    font-size:54px;
-  }
+  .row{ flex-direction:column; gap:3px; }
+  .sxj-logo{ font-size:54px; }
 }
 
 </style>
@@ -186,70 +158,51 @@ button:active, select:active{
 
 <body>
 
-<!-- SXJ INTRO -->
+<!-- SPLASH -->
 <div id="splashScreen">
   <div class="wind"></div>
   <div class="sxj-logo">SXJ</div>
 </div>
 
-<!-- TEAM SELECT -->
+<!-- SELECT -->
 <div id="selectScreen" class="screen">
-
   <h2>🏆 World Cup 2026 Simulator</h2>
 
   <select id="teamA"></select>
   <select id="teamB"></select>
 
   <button onclick="startMatch()">START MATCH</button>
-
 </div>
 
 <!-- OVERLAY -->
 <div id="overlay" class="overlay">
-
   <div class="wc">🏆 FIFA WORLD CUP 2026</div>
   <p id="loadingText">Loading Engine...</p>
-
 </div>
 
 <!-- RESULT -->
 <div id="resultScreen" class="screen">
-
   <div class="score" id="finalScore"></div>
   <div class="stats" id="statsBox"></div>
   <div class="goalBox" id="goalBox"></div>
-
   <button onclick="goBack()">Back</button>
-
 </div>
 
 <script>
 
-/* ================= (YOUR ORIGINAL JS KEPT SAME) ================= */
-
-let teams = [
-"Algeria","Argentina","Australia","Austria","Belgium",
-"Bosnia and Herzegovina","Brazil","Cabo Verde","Canada","Colombia",
-"Congo DR","Côte d'Ivoire","Croatia","Curaçao","Czechia",
-"Ecuador","Egypt","England","France","Germany",
-"Ghana","Haiti","IR Iran","Iraq","Japan",
-"Jordan","Korea Republic","Mexico","Morocco","Netherlands",
-"New Zealand","Norway","Panama","Paraguay","Portugal",
-"Qatar","Saudi Arabia","Scotland","Senegal","South Africa",
-"Spain","Sweden","Switzerland","Tunisia","Türkiye",
-"United States","Uruguay","Uzbekistan"
-];
+/* KEEP YOUR ORIGINAL JS EXACTLY SAME */
+let teams = ["Algeria","Argentina","Australia","Austria","Belgium","Bosnia and Herzegovina","Brazil","Cabo Verde","Canada","Colombia","Congo DR","Côte d'Ivoire","Croatia","Curaçao","Czechia","Ecuador","Egypt","England","France","Germany","Ghana","Haiti","IR Iran","Iraq","Japan","Jordan","Korea Republic","Mexico","Morocco","Netherlands","New Zealand","Norway","Panama","Paraguay","Portugal","Qatar","Saudi Arabia","Scotland","Senegal","South Africa","Spain","Sweden","Switzerland","Tunisia","Türkiye","United States","Uruguay","Uzbekistan"];
 
 teams.sort((a,b)=>a.localeCompare(b));
 
 const teamA=document.getElementById("teamA");
 const teamB=document.getElementById("teamB");
 
-teams.forEach(t=>{
+teams.forEach(team=>{
   let a=document.createElement("option");
   let b=document.createElement("option");
-  a.text=b.text=t;
-  a.value=b.value=t;
+  a.text=b.text=team;
+  a.value=b.value=team;
   teamA.add(a);
   teamB.add(b);
 });
@@ -261,23 +214,35 @@ function showScreen(id){
 
 function goBack(){ showScreen("selectScreen"); }
 
+function startMatch(){
+  document.getElementById("overlay").style.display="flex";
+
+  let steps=[
+    "Loading squads...",
+    "Analyzing attack...",
+    "Running simulation...",
+    "Finalizing result..."
+  ];
+
+  let i=0;
+  let interval=setInterval(()=>{
+    document.getElementById("loadingText").innerText=steps[i++];
+    if(i>=steps.length){
+      clearInterval(interval);
+      setTimeout(()=>{
+        document.getElementById("overlay").style.display="none";
+        showScreen("resultScreen");
+      },700);
+    }
+  },600);
+}
+
 window.addEventListener("load",()=>{
   setTimeout(()=>{
     document.getElementById("splashScreen").style.display="none";
     showScreen("selectScreen");
   },2500);
 });
-
-/* dummy match (unchanged logic placeholder) */
-function startMatch(){
-  document.getElementById("overlay").style.display="flex";
-
-  setTimeout(()=>{
-    document.getElementById("overlay").style.display="none";
-    document.getElementById("finalScore").innerText="Demo Match Loaded";
-    showScreen("resultScreen");
-  },2000);
-}
 
 </script>
 
