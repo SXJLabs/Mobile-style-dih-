@@ -6,7 +6,7 @@
   <div class="sxj-logo">SXJ</div>
 </div>
 
-<!-- ================= MAIN MENU ================= -->
+<!-- ================= MAIN SCREEN ================= -->
 <div id="selectScreen" class="screen">
 
   <h2>🏆 World Cup 2026 Simulator</h2>
@@ -14,13 +14,11 @@
   <select id="teamA"></select>
   <select id="teamB"></select>
 
-  <button onclick="startMatch()">
-    START MATCH
-  </button>
+  <button onclick="startMatch()">START MATCH</button>
 
 </div>
 
-<!-- ================= WORLD CUP OVERLAY ================= -->
+<!-- ================= LOADING OVERLAY ================= -->
 <div id="overlay" class="overlay">
 
   <div class="wc">🏆 FIFA WORLD CUP 2026</div>
@@ -28,7 +26,7 @@
 
 </div>
 
-<!-- ================= RESULT ================= -->
+<!-- ================= RESULT SCREEN ================= -->
 <div id="resultScreen" class="screen">
 
   <div class="score" id="finalScore"></div>
@@ -41,10 +39,41 @@
 
 </div>
 
-<!-- ================= NEW ANIMATION STYLE ================= -->
+
 <style>
 
-/* 🔥 GLOBAL BUTTON UPGRADE */
+/* ================= BASE ================= */
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#050b14;
+  color:white;
+}
+
+/* ================= SCREEN ANIMATION FIX ================= */
+
+.screen{
+  display:block;
+  opacity:0;
+  visibility:hidden;
+  transform:scale(1.05);
+  filter:blur(18px);
+  transition:all 0.9s ease;
+  padding:15px;
+  min-height:100vh;
+  box-sizing:border-box;
+}
+
+.screen.active{
+  opacity:1;
+  visibility:visible;
+  transform:scale(1);
+  filter:blur(0);
+}
+
+/* ================= WHITE GLOW BUTTON SYSTEM (FINAL FIX) ================= */
+
 button, select{
 
   width:100%;
@@ -54,117 +83,75 @@ button, select{
   background:#0a0a0a;
   color:white;
 
-  border:2px solid white;
-  border-radius:12px;
+  border:2px solid rgba(255,255,255,0.85);
 
+  border-radius:12px;
   font-size:16px;
 
-  /* glowing text */
-  text-shadow:0 0 8px white;
+  text-shadow:0 0 8px rgba(255,255,255,0.9);
 
-  /* glow border */
-  box-shadow:0 0 8px rgba(255,255,255,0.3);
+  box-shadow:
+    0 0 6px rgba(255,255,255,0.25),
+    inset 0 0 8px rgba(255,255,255,0.08);
 
   transition:0.25s ease;
 
   cursor:pointer;
 }
 
-/* ✨ HOVER ANIMATION */
+/* hover */
 button:hover, select:hover{
 
-  transform:scale(1.03);
+  transform:scale(1.04);
 
   box-shadow:
-    0 0 10px white,
-    0 0 25px white;
+    0 0 14px rgba(255,255,255,0.9),
+    0 0 30px rgba(255,255,255,0.5);
 
 }
 
-/* ⚡ CLICK ANIMATION */
+/* click */
 button:active, select:active{
 
   transform:scale(0.96);
 
   box-shadow:
-    0 0 15px white,
-    0 0 35px white;
+    0 0 18px white,
+    inset 0 0 12px rgba(255,255,255,0.2);
 
 }
 
-/* 🌫️ MENU BLUR INTRO */
-.screen{
-
-  display:none;
-  padding:15px;
-  min-height:100vh;
-  box-sizing:border-box;
-
-  opacity:0;
-  filter:blur(20px);
-  transform:scale(1.05);
-
-  transition:0.8s ease;
-
-}
-
-.screen.active{
-
-  display:block;
-
-  opacity:1;
-  filter:blur(0);
-  transform:scale(1);
-
-}
-
-/* ================= SXJ SPLASH ================= */
+/* ================= SXJ INTRO ================= */
 
 #splashScreen{
-
   position:fixed;
   inset:0;
-
   background:#000;
-
   display:flex;
   justify-content:center;
   align-items:center;
-
   overflow:hidden;
   z-index:99999;
-
 }
 
 .sxj-logo{
-
-  color:white;
   font-size:72px;
   font-weight:900;
-
   letter-spacing:12px;
-
+  color:white;
   opacity:0;
-
   animation:logoIntro 2.5s ease forwards;
-
 }
 
 .wind{
-
   position:absolute;
   width:300px;
   height:3px;
-
   background:white;
-
   filter:blur(4px);
-
   left:-350px;
   top:50%;
-
   animation:windMove 2.5s ease forwards;
-
 }
 
 @keyframes windMove{
@@ -175,13 +162,13 @@ button:active, select:active{
 
 @keyframes logoIntro{
   0%{opacity:0;transform:translateX(-100px);}
-  35%{opacity:1;transform:translateX(0);}
-  70%{opacity:1;text-shadow:0 0 20px white;}
+  40%{opacity:1;transform:translateX(0);}
+  80%{text-shadow:0 0 20px white;}
   100%{opacity:0;transform:scale(1.1);}
 }
 
 </style>
-/* ================= TEAMS ================= */
+/* ================= TEAMS (48 WORLD CUP TEAMS) ================= */
 
 let teams = [
 "Algeria","Argentina","Australia","Austria","Belgium",
@@ -196,9 +183,10 @@ let teams = [
 "United States","Uruguay","Uzbekistan"
 ];
 
+/* sort A → Z */
 teams.sort((a,b)=>a.localeCompare(b));
 
-/* ================= TEAM STRENGTH ================= */
+/* ================= TEAM STRENGTH SYSTEM ================= */
 
 const teamStats = {
 
@@ -254,40 +242,47 @@ const teamStats = {
 "Tunisia":[76,75,75]
 };
 
-/* ================= PLAYERS ================= */
+/* calculate strength */
+function getStrength(team){
+  if(!teamStats[team]) return 75;
+  let [a,m,d] = teamStats[team];
+  return (a+m+d)/3;
+}
+
+/* ================= PLAYERS (ONLY 3 PER TEAM) ================= */
 
 const players = {
 
-"Argentina":["Messi","Álvarez","Lautaro"],
-"Brazil":["Vinícius","Rodrygo","Richarlison"],
+"Argentina":["Messi","Julián Álvarez","Lautaro Martínez"],
+"Brazil":["Vinícius Jr","Rodrygo","Richarlison"],
 "France":["Mbappé","Griezmann","Thuram"],
 "England":["Kane","Saka","Foden"],
-"Spain":["Morata","Pedri","Yamal"],
+"Spain":["Morata","Pedri","Lamine Yamal"],
 "Germany":["Musiala","Havertz","Kimmich"],
 "Italy":["Chiesa","Barella","Raspadori"],
-"Portugal":["Ronaldo","Bruno","Nuno Mendes"],
-"Netherlands":["Depay","Gakpo","Simons"],
+"Portugal":["Cristiano Ronaldo","Bruno Fernandes","Nuno Mendes"],
+"Netherlands":["Depay","Gakpo","Xavi Simons"],
 "Belgium":["De Bruyne","Lukaku","Doku"],
 "Croatia":["Modrić","Kramarić","Perišić"],
 "Morocco":["Hakimi","Ziyech","En-Nesyri"],
 "Japan":["Kubo","Mitoma","Minamino"],
 "Mexico":["Lozano","Jiménez","Vega"],
-"Canada":["David","Larin","Buchanan"],
+"Canada":["Jonathan David","Larin","Buchanan"],
 "United States":["Pulisic","Balogun","Reyna"],
 "Egypt":["Salah","Marmoush","Trezeguet"],
 "Senegal":["Mané","Jackson","Sarr"],
-"Uruguay":["Núñez","Valverde","Pellistri"],
-"Colombia":["Luis Díaz","Durán","James"],
+"Uruguay":["Darwin Núñez","Valverde","Pellistri"],
+"Colombia":["Luis Díaz","Jhon Durán","James Rodríguez"],
 "Switzerland":["Xhaka","Embolo","Shaqiri"],
 "Norway":["Haaland","Ødegaard","Sørloth"],
 "Türkiye":["Çalhanoğlu","Yıldız","Aktürkoğlu"],
-"Qatar":["Afif","Almoez","Hassan"],
-"Saudi Arabia":["Dawsari","Shehri","Buraikan"],
+"Qatar":["Afif","Almoez Ali","Hassan"],
+"Saudi Arabia":["Al-Dawsari","Al-Shehri","Al-Buraikan"],
 "Australia":["Goodwin","Boyle","Maclaren"],
-"New Zealand":["Wood","Barbarouses","Singh"],
-"Korea Republic":["Son","Hwang","Lee"],
+"New Zealand":["Chris Wood","Barbarouses","Singh"],
+"Korea Republic":["Son Heung-min","Hwang Hee-chan","Lee Kang-in"],
 "IR Iran":["Taremi","Azmoun","Ghoddos"],
-"Iraq":["Ali","Hussein","Adnan"],
+"Iraq":["Ali Jasim","Aymen Hussein","Adnan"],
 "Uzbekistan":["Shomurodov","Hamrobekov","Saidov"],
 
 "Algeria":["Mahrez","Slimani","Bounedjah"],
@@ -295,92 +290,66 @@ const players = {
 "Bosnia and Herzegovina":["Džeko","Pjanić","Krunić"],
 "Cabo Verde":["Semedo","Pina","Garcia"],
 "Congo DR":["Bakambu","Mbemba","Bolasie"],
-"Côte d'Ivoire":["Haller","Adingra","Kessié"],
+"Côte d'Ivoire":["Haller","Kessié","Adingra"],
 "Curaçao":["Bacuna","Janga","Maria"],
 "Czechia":["Schick","Souček","Coufal"],
 "Ecuador":["Valencia","Caicedo","Plata"],
-"Ghana":["Kudus","Ayew","Partey"],
+"Ghana":["Kudus","Partey","Ayew"],
 "Haiti":["Nazon","Pierrot","Pascual"],
-"Jordan":["Al-Naimat","Al-Taamari","Abu Taha"],
+"Jordan":["Al-Taamari","Al-Naimat","Abu Taha"],
 "Panama":["Díaz","Torres","Rodríguez"],
 "Paraguay":["Almirón","Sanabria","Romero"],
-"Scotland":["McTominay","Robertson","Dykes"],
+"Scotland":["Robertson","McTominay","Dykes"],
 "South Africa":["Lorch","Makgopa","Mokoena"],
 "Sweden":["Isak","Kulusevski","Gyökeres"],
 "Tunisia":["Msakni","Jaziri","Sliti"]
 };
 
-/* ================= DROPDOWNS ================= */
+/* helper: random player */
+function randomPlayer(team){
+  return players[team]?.[Math.floor(Math.random()*3)] || "Star Player";
+}
+
+/* ================= DROPDOWN INIT ================= */
 
 const teamA = document.getElementById("teamA");
 const teamB = document.getElementById("teamB");
 
-teams.forEach(team=>{
-
+teams.forEach(t=>{
   let a = document.createElement("option");
   let b = document.createElement("option");
 
-  a.text = team;
-  b.text = team;
-
-  a.value = team;
-  b.value = team;
+  a.text = b.text = t;
+  a.value = b.value = t;
 
   teamA.add(a);
   teamB.add(b);
-
 });
-
-/* ================= HELPERS ================= */
-
-function getStrength(team){
-
-  if(!teamStats[team]) return 75;
-
-  let [a,m,d] = teamStats[team];
-
-  return (a+m+d)/3;
-}
-
-function randomPlayer(team){
-
-  return players[team][
-    Math.floor(Math.random()*players[team].length)
-  ];
-
-}
-  /* ================= MATCH SIMULATION ENGINE ================= */
+  /* ================= MATCH ENGINE (REALISTIC + CONTROLLED RANDOMNESS) ================= */
 
 function simulate(A, B){
 
   let strengthA = getStrength(A);
   let strengthB = getStrength(B);
 
-  let scoreA = 0;
-  let scoreB = 0;
-
-  let diff = strengthA - strengthB;
-
-  /* 🎯 realistic base chance */
   let baseA = strengthA / (strengthA + strengthB);
   let baseB = 1 - baseA;
 
-  /* ⚽ controlled randomness (less chaos) */
-  for(let i=0;i<18;i++){
+  let scoreA = 0;
+  let scoreB = 0;
 
-    let chance = Math.random();
+  /* ⚽ controlled simulation (less chaos, more realism) */
+  for(let i=0;i<20;i++){
 
-    if(chance < baseA * 0.12){
-      scoreA++;
-    }
+    let r = Math.random();
 
-    if(chance < baseB * 0.12){
-      scoreB++;
-    }
+    if(r < baseA * 0.10) scoreA++;
+    if(r > 1 - (baseB * 0.10)) scoreB++;
 
   }
 
-  /* 🔒 upset protection (prevents nonsense scorelines) */
+  /* 🔒 upset protection (stops nonsense results) */
+  let diff = strengthA - strengthB;
 
   if(diff > 15 && scoreB > scoreA){
     scoreB = Math.max(0, scoreA - 1);
@@ -395,15 +364,15 @@ function simulate(A, B){
   let possB = 100 - possA;
 
   /* 🎯 shots */
-  let shotsA = Math.floor(scoreA * 3 + Math.random() * 5 + 3);
-  let shotsB = Math.floor(scoreB * 3 + Math.random() * 5 + 3);
+  let shotsA = Math.floor(scoreA * 3 + Math.random()*5 + 4);
+  let shotsB = Math.floor(scoreB * 3 + Math.random()*5 + 4);
 
   let onTargetA = Math.max(scoreA, Math.floor(shotsA * 0.5));
   let onTargetB = Math.max(scoreB, Math.floor(shotsB * 0.5));
 
   /* 📌 passes */
-  let passesA = Math.floor(260 + possA * 4 + Math.random() * 60);
-  let passesB = Math.floor(260 + possB * 4 + Math.random() * 60);
+  let passesA = Math.floor(260 + possA * 4 + Math.random()*50);
+  let passesB = Math.floor(260 + possB * 4 + Math.random()*50);
 
   return {
     scoreA,
@@ -419,7 +388,7 @@ function simulate(A, B){
   };
 }
 
-/* ================= START MATCH ================= */
+/* ================= START MATCH FLOW ================= */
 
 function startMatch(){
 
@@ -434,8 +403,8 @@ function startMatch(){
     "Analyzing midfield...",
     "Analyzing defense...",
     "Calculating probabilities...",
-    "Running simulation engine...",
-    "Finalizing match result..."
+    "Running World Cup engine...",
+    "Finalizing result..."
   ];
 
   let i = 0;
@@ -453,14 +422,14 @@ function startMatch(){
 
         document.getElementById("overlay").style.display = "none";
 
-        let r = simulate(A, B);
+        let r = simulate(A,B);
 
         /* ================= SCORE ================= */
 
         document.getElementById("finalScore").innerText =
           `${A} ${r.scoreA} - ${r.scoreB} ${B}`;
 
-        /* ================= STATS (CLEAN ALIGNMENT) ================= */
+        /* ================= STATS (CLEAN LEFT-RIGHT FORMAT FIXED) ================= */
 
         document.getElementById("statsBox").innerHTML = `
           <div class="row"><b>Possession</b><span>${r.possA}% - ${r.possB}%</span></div>
@@ -496,7 +465,7 @@ function startMatch(){
   },500);
 }
 
-/* ================= SCREEN SWITCH ================= */
+/* ================= SCREEN SWITCH FIX ================= */
 
 function showScreen(id){
 
@@ -513,7 +482,7 @@ function goBack(){
   showScreen("selectScreen");
 }
 
-/* ================= SXJ INTRO CONTROL ================= */
+/* ================= SXJ INTRO + BLUR TO CLEAR FIX ================= */
 
 window.addEventListener("load",()=>{
 
@@ -522,17 +491,19 @@ window.addEventListener("load",()=>{
 
   setTimeout(()=>{
 
-    splash.style.transition = "0.6s ease";
+    splash.style.transition = "0.8s ease";
     splash.style.opacity = "0";
 
     setTimeout(()=>{
 
       splash.style.display = "none";
 
-      /* 🌫️ smooth blur-to-clear entrance */
+      /* 🌫️ FIXED BLUR → CLEAR ANIMATION */
       home.classList.add("active");
 
-    },600);
+      home.style.animation = "focusIn 1s ease";
+
+    },800);
 
   },2500);
 
