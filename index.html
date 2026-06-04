@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SXJ Football Training Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SXJ Training App</title>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
 body{
   background:#0a0a0a;
   color:white;
-  overflow-x:hidden;
 }
 
 /* SPLASH SCREEN */
@@ -28,51 +35,62 @@ body{
 .logo{
   font-size:60px;
   font-weight:bold;
-  letter-spacing:10px;
   color:#00ff88;
-  animation:zoom 2s infinite alternate;
+  letter-spacing:8px;
+  animation:zoom 1.5s infinite alternate;
 }
 
 @keyframes zoom{
-  from{transform:scale(1);text-shadow:0 0 10px #00ff88;}
-  to{transform:scale(1.3);text-shadow:0 0 40px #00ff88;}
+  from{transform:scale(1);}
+  to{transform:scale(1.2); text-shadow:0 0 30px #00ff88;}
 }
 
 @keyframes fadeOut{
   to{opacity:0;visibility:hidden;}
 }
 
-/* MAIN */
+/* HEADER */
 header{
   text-align:center;
-  padding:20px;
-  font-size:28px;
+  padding:15px;
+  font-size:22px;
   color:#00ff88;
+  font-weight:bold;
 }
 
+/* CONTAINER */
 .container{
-  max-width:700px;
+  width:100%;
+  max-width:800px;
   margin:auto;
-  padding:20px;
+  padding:15px;
+}
+
+/* INPUT AREA */
+.input-box{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+  flex-wrap:wrap;
 }
 
 input{
-  width:70%;
-  padding:10px;
+  flex:1;
+  padding:12px;
   border:none;
   outline:none;
-  border-radius:5px;
+  border-radius:8px;
+  font-size:16px;
 }
 
 button{
-  padding:10px 15px;
+  padding:12px 15px;
   background:#00ff88;
   border:none;
-  cursor:pointer;
+  border-radius:8px;
   font-weight:bold;
-  margin-left:5px;
-  border-radius:5px;
-  transition:0.3s;
+  cursor:pointer;
+  transition:0.2s;
 }
 
 button:hover{
@@ -80,75 +98,109 @@ button:hover{
   color:black;
 }
 
+/* TRAINING CARD */
 .card{
   background:#111;
-  margin-top:15px;
-  padding:15px;
+  padding:12px;
+  margin-top:10px;
   border-left:4px solid #00ff88;
-  animation:slide 0.5s ease;
+  border-radius:6px;
+  animation:slide 0.3s ease;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  word-break:break-word;
 }
 
 @keyframes slide{
-  from{transform:translateX(-50px);opacity:0;}
-  to{transform:translateX(0);opacity:1;}
+  from{transform:translateY(10px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
 }
 
-.delete{
-  float:right;
+.del{
   background:red;
   color:white;
   border:none;
-  padding:5px 10px;
+  padding:6px 10px;
+  border-radius:5px;
   cursor:pointer;
+}
+
+/* MOBILE OPTIMIZATION */
+@media (max-width:600px){
+  .logo{font-size:40px;}
+  header{font-size:18px;}
+
+  input{
+    width:100%;
+  }
+
+  button{
+    width:100%;
+  }
+
+  .input-box{
+    flex-direction:column;
+  }
+
+  .card{
+    font-size:14px;
+  }
 }
 </style>
 </head>
+
 <body>
 
-<!-- SXJ SPLASH -->
+<!-- SPLASH -->
 <div id="splash">
   <div class="logo">SXJ</div>
-  <p style="color:white;margin-top:10px;">Loading Beast Mode Training...</p>
+  <p style="color:white;margin-top:10px;">Loading Training Mode...</p>
 </div>
 
-<header>⚽ SXJ FOOTBALL TRAINING MODE</header>
+<header>⚽ SXJ FOOTBALL TRAINING TRACKER</header>
 
 <div class="container">
-  <input id="input" placeholder="Enter training day (e.g. Day 1 done: shooting drills)">
-  <button onclick="addDay()">Add</button>
+
+  <div class="input-box">
+    <input id="input" placeholder="Enter training (Day 1, shooting, dribbling...)">
+    <button onclick="add()">ADD</button>
+  </div>
 
   <div id="list"></div>
+
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("training")) || [];
+let data = JSON.parse(localStorage.getItem("sxj_training")) || [];
 
 function render(){
   let list = document.getElementById("list");
   list.innerHTML = "";
-  data.forEach((item,index)=>{
+
+  data.forEach((item,i)=>{
     list.innerHTML += `
       <div class="card">
-        ${item}
-        <button class="delete" onclick="del(${index})">X</button>
+        <div>🔥 ${item}</div>
+        <button class="del" onclick="removeItem(${i})">X</button>
       </div>
     `;
   });
 }
 
-function addDay(){
+function add(){
   let input = document.getElementById("input");
   if(input.value.trim() === "") return;
 
-  data.push("🔥 " + input.value);
-  localStorage.setItem("training", JSON.stringify(data));
+  data.push(input.value);
+  localStorage.setItem("sxj_training", JSON.stringify(data));
   input.value = "";
   render();
 }
 
-function del(i){
+function removeItem(i){
   data.splice(i,1);
-  localStorage.setItem("training", JSON.stringify(data));
+  localStorage.setItem("sxj_training", JSON.stringify(data));
   render();
 }
 
