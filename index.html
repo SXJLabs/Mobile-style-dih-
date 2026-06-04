@@ -18,7 +18,7 @@ body{
   color:white;
 }
 
-/* ===== SPLASH ===== */
+/* ===== SPLASH SCREEN ===== */
 #splash{
   position:fixed;
   inset:0;
@@ -33,10 +33,10 @@ body{
 
 .logo{
   font-size:64px;
-  color:#00ff88;
   font-weight:bold;
-  animation:pulse 1.2s infinite alternate;
+  color:#00ff88;
   letter-spacing:10px;
+  animation:pulse 1.2s infinite alternate;
 }
 
 @keyframes pulse{
@@ -48,7 +48,7 @@ body{
   to{opacity:0;visibility:hidden;}
 }
 
-/* ===== TOP BAR ===== */
+/* ===== HEADER ===== */
 header{
   text-align:center;
   padding:14px;
@@ -57,7 +57,7 @@ header{
   font-weight:bold;
 }
 
-/* ===== MAIN APP ===== */
+/* ===== APP CONTAINER ===== */
 .container{
   width:100%;
   max-width:600px;
@@ -65,7 +65,7 @@ header{
   padding:12px;
 }
 
-/* PLAYER STATS CARD */
+/* ===== STATS CARD ===== */
 .stats{
   background:#111;
   padding:14px;
@@ -79,7 +79,7 @@ header{
   background:#222;
   border-radius:20px;
   overflow:hidden;
-  margin-top:6px;
+  margin-top:8px;
 }
 
 .fill{
@@ -89,7 +89,7 @@ header{
   transition:0.4s;
 }
 
-/* INPUT */
+/* ===== INPUT ===== */
 .inputBox{
   display:flex;
   flex-direction:column;
@@ -119,7 +119,14 @@ button:active{
   transform:scale(0.97);
 }
 
-/* CARDS */
+/* RESET BUTTON */
+.reset{
+  background:#ff3b3b;
+  color:white;
+  margin-top:10px;
+}
+
+/* ===== TRAINING CARD ===== */
 .card{
   background:#151515;
   padding:12px;
@@ -139,12 +146,8 @@ button:active{
   border-radius:6px;
 }
 
-/* MOBILE PERFECT */
+/* ===== MOBILE ===== */
 @media(max-width:600px){
-  .container{
-    padding:10px;
-  }
-
   header{
     font-size:16px;
   }
@@ -158,26 +161,31 @@ button:active{
 
 <body>
 
-<!-- SXJ SPLASH -->
+<!-- SPLASH -->
 <div id="splash">
   <div class="logo">SXJ</div>
-  <p style="color:white;margin-top:10px;">Entering Career Mode...</p>
+  <p style="color:white;margin-top:10px;">Starting Career Mode...</p>
 </div>
 
 <header>⚽ SXJ FOOTBALL CAREER MODE</header>
 
 <div class="container">
 
-  <!-- PLAYER LEVEL -->
+  <!-- STATS -->
   <div class="stats">
     <div>🔥 Level: <span id="level">1</span></div>
     <div>⭐ XP: <span id="xp">0</span>/100</div>
-    <div class="bar"><div class="fill" id="bar"></div></div>
+    <div class="bar">
+      <div class="fill" id="bar"></div>
+    </div>
+
+    <!-- RESET BUTTON -->
+    <button class="reset" onclick="resetGame()">RESET CAREER</button>
   </div>
 
   <!-- INPUT -->
   <div class="inputBox">
-    <input id="input" placeholder="Write training (e.g. Day 1 shooting drills)">
+    <input id="input" placeholder="Write training (Day 1 shooting, dribbling...)">
     <button onclick="addTraining()">ADD TRAINING</button>
   </div>
 
@@ -207,7 +215,7 @@ function addTraining(){
   data.push("⚽ " + input.value);
   localStorage.setItem("sxj_data", JSON.stringify(data));
 
-  // XP SYSTEM (beast mode)
+  // XP SYSTEM
   xp += 20;
 
   if(xp >= level * 100){
@@ -226,6 +234,19 @@ function removeItem(i){
   data.splice(i,1);
   localStorage.setItem("sxj_data", JSON.stringify(data));
   render();
+}
+
+function resetGame(){
+  localStorage.removeItem("xp");
+  localStorage.removeItem("level");
+  localStorage.removeItem("sxj_data");
+
+  xp = 0;
+  level = 1;
+  data = [];
+
+  render();
+  updateStats();
 }
 
 function render(){
