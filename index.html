@@ -2,248 +2,157 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>World Cup 2026 Simulator</title>
-
+<title>SXJ Football Training Tracker</title>
 <style>
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#050b14;
+  background:#0a0a0a;
   color:white;
+  overflow-x:hidden;
 }
 
-/* ================= SXJ SPLASH SCREEN ================= */
-
-#splashScreen{
+/* SPLASH SCREEN */
+#splash{
   position:fixed;
-  inset:0;
-  background:#000;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  overflow:hidden;
-  z-index:99999;
-}
-
-.sxj-logo{
-  color:#ffd700;
-  font-size:72px;
-  font-weight:900;
-  letter-spacing:12px;
-  opacity:0;
-  animation:logoIntro 2.5s ease forwards;
-}
-
-.wind{
-  position:absolute;
-  width:300px;
-  height:3px;
-  background:#ffd700;
-  filter:blur(4px);
-  left:-350px;
-  top:50%;
-  animation:windMove 2.5s ease forwards;
-}
-
-@keyframes windMove{
-  0%{ left:-350px; opacity:0; }
-  20%{ opacity:1; }
-  100%{ left:120%; opacity:0; }
-}
-
-@keyframes logoIntro{
-  0%{ opacity:0; transform:translateX(-100px); }
-  35%{ opacity:1; transform:translateX(0); }
-  70%{ opacity:1; text-shadow:0 0 15px #ffd700,0 0 30px #ffd700; }
-  100%{ opacity:0; transform:scale(1.1); }
-}
-
-/* ================= MAIN SCREENS ================= */
-
-.screen{
-  display:none;
-  padding:15px;
-  min-height:100vh;
-  box-sizing:border-box;
-}
-
-.active{ display:block; }
-
-/* ================= INPUTS ================= */
-
-select,
-button{
   width:100%;
-  padding:14px;
-  margin-top:12px;
-  background:#111;
-  border:1px solid #ffd700;
-  color:white;
-  border-radius:10px;
-  font-size:16px;
-  transition:0.2s ease;
-}
-
-/* hover + click glow */
-button:hover, select:hover{
-  box-shadow:0 0 12px #ffd700;
-  transform:scale(1.02);
-}
-
-button:active, select:active{
-  transform:scale(0.97);
-  box-shadow:0 0 20px #ffd700;
-}
-
-/* ================= OVERLAY ================= */
-
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.95);
-  display:none;
+  height:100%;
+  background:black;
+  display:flex;
   justify-content:center;
   align-items:center;
   flex-direction:column;
-  text-align:center;
+  z-index:9999;
+  animation:fadeOut 2s ease 3s forwards;
 }
 
-.wc{
+.logo{
+  font-size:60px;
+  font-weight:bold;
+  letter-spacing:10px;
+  color:#00ff88;
+  animation:zoom 2s infinite alternate;
+}
+
+@keyframes zoom{
+  from{transform:scale(1);text-shadow:0 0 10px #00ff88;}
+  to{transform:scale(1.3);text-shadow:0 0 40px #00ff88;}
+}
+
+@keyframes fadeOut{
+  to{opacity:0;visibility:hidden;}
+}
+
+/* MAIN */
+header{
+  text-align:center;
+  padding:20px;
   font-size:28px;
-  color:#ffd700;
-  animation:pulse 1s infinite;
+  color:#00ff88;
 }
 
-@keyframes pulse{
-  0%{ transform:scale(1); opacity:.6; }
-  50%{ transform:scale(1.15); opacity:1; }
-  100%{ transform:scale(1); opacity:.6; }
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:20px;
 }
 
-/* ================= RESULT ================= */
-
-.score{
-  font-size:34px;
-  text-align:center;
-  color:#ffd700;
-  margin-top:10px;
+input{
+  width:70%;
+  padding:10px;
+  border:none;
+  outline:none;
+  border-radius:5px;
 }
 
-.stats,
-.goalBox{
-  margin-top:12px;
-  background:#0b1220;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #ffd700;
+button{
+  padding:10px 15px;
+  background:#00ff88;
+  border:none;
+  cursor:pointer;
+  font-weight:bold;
+  margin-left:5px;
+  border-radius:5px;
+  transition:0.3s;
 }
 
-.row{
-  display:flex;
-  justify-content:space-between;
-  padding:6px 0;
-  font-size:14px;
-  color:#ddd;
+button:hover{
+  background:white;
+  color:black;
 }
 
-@media (max-width:600px){
-  .row{ flex-direction:column; gap:3px; }
-  .sxj-logo{ font-size:54px; }
+.card{
+  background:#111;
+  margin-top:15px;
+  padding:15px;
+  border-left:4px solid #00ff88;
+  animation:slide 0.5s ease;
 }
 
+@keyframes slide{
+  from{transform:translateX(-50px);opacity:0;}
+  to{transform:translateX(0);opacity:1;}
+}
+
+.delete{
+  float:right;
+  background:red;
+  color:white;
+  border:none;
+  padding:5px 10px;
+  cursor:pointer;
+}
 </style>
 </head>
-
 <body>
 
-<!-- SPLASH -->
-<div id="splashScreen">
-  <div class="wind"></div>
-  <div class="sxj-logo">SXJ</div>
+<!-- SXJ SPLASH -->
+<div id="splash">
+  <div class="logo">SXJ</div>
+  <p style="color:white;margin-top:10px;">Loading Beast Mode Training...</p>
 </div>
 
-<!-- SELECT -->
-<div id="selectScreen" class="screen">
-  <h2>🏆 World Cup 2026 Simulator</h2>
+<header>⚽ SXJ FOOTBALL TRAINING MODE</header>
 
-  <select id="teamA"></select>
-  <select id="teamB"></select>
+<div class="container">
+  <input id="input" placeholder="Enter training day (e.g. Day 1 done: shooting drills)">
+  <button onclick="addDay()">Add</button>
 
-  <button onclick="startMatch()">START MATCH</button>
-</div>
-
-<!-- OVERLAY -->
-<div id="overlay" class="overlay">
-  <div class="wc">🏆 FIFA WORLD CUP 2026</div>
-  <p id="loadingText">Loading Engine...</p>
-</div>
-
-<!-- RESULT -->
-<div id="resultScreen" class="screen">
-  <div class="score" id="finalScore"></div>
-  <div class="stats" id="statsBox"></div>
-  <div class="goalBox" id="goalBox"></div>
-  <button onclick="goBack()">Back</button>
+  <div id="list"></div>
 </div>
 
 <script>
+let data = JSON.parse(localStorage.getItem("training")) || [];
 
-/* KEEP YOUR ORIGINAL JS EXACTLY SAME */
-let teams = ["Algeria","Argentina","Australia","Austria","Belgium","Bosnia and Herzegovina","Brazil","Cabo Verde","Canada","Colombia","Congo DR","Côte d'Ivoire","Croatia","Curaçao","Czechia","Ecuador","Egypt","England","France","Germany","Ghana","Haiti","IR Iran","Iraq","Japan","Jordan","Korea Republic","Mexico","Morocco","Netherlands","New Zealand","Norway","Panama","Paraguay","Portugal","Qatar","Saudi Arabia","Scotland","Senegal","South Africa","Spain","Sweden","Switzerland","Tunisia","Türkiye","United States","Uruguay","Uzbekistan"];
-
-teams.sort((a,b)=>a.localeCompare(b));
-
-const teamA=document.getElementById("teamA");
-const teamB=document.getElementById("teamB");
-
-teams.forEach(team=>{
-  let a=document.createElement("option");
-  let b=document.createElement("option");
-  a.text=b.text=team;
-  a.value=b.value=team;
-  teamA.add(a);
-  teamB.add(b);
-});
-
-function showScreen(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+function render(){
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+  data.forEach((item,index)=>{
+    list.innerHTML += `
+      <div class="card">
+        ${item}
+        <button class="delete" onclick="del(${index})">X</button>
+      </div>
+    `;
+  });
 }
 
-function goBack(){ showScreen("selectScreen"); }
+function addDay(){
+  let input = document.getElementById("input");
+  if(input.value.trim() === "") return;
 
-function startMatch(){
-  document.getElementById("overlay").style.display="flex";
-
-  let steps=[
-    "Loading squads...",
-    "Analyzing attack...",
-    "Running simulation...",
-    "Finalizing result..."
-  ];
-
-  let i=0;
-  let interval=setInterval(()=>{
-    document.getElementById("loadingText").innerText=steps[i++];
-    if(i>=steps.length){
-      clearInterval(interval);
-      setTimeout(()=>{
-        document.getElementById("overlay").style.display="none";
-        showScreen("resultScreen");
-      },700);
-    }
-  },600);
+  data.push("🔥 " + input.value);
+  localStorage.setItem("training", JSON.stringify(data));
+  input.value = "";
+  render();
 }
 
-window.addEventListener("load",()=>{
-  setTimeout(()=>{
-    document.getElementById("splashScreen").style.display="none";
-    showScreen("selectScreen");
-  },2500);
-});
+function del(i){
+  data.splice(i,1);
+  localStorage.setItem("training", JSON.stringify(data));
+  render();
+}
 
+render();
 </script>
 
 </body>
